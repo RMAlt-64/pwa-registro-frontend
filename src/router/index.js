@@ -1,7 +1,9 @@
 // src/router/index.js
 import { createRouter, createWebHistory } from 'vue-router'
 import LoginView from '../views/LoginView.vue'
+import AdminLayout from '../views/admin/AdminLayout.vue'
 import UsuariosView from '../views/admin/UsuariosView.vue'
+import NotFoundView from '../views/NotFoundView.vue'
 
 const routes = [
     {
@@ -10,16 +12,46 @@ const routes = [
         component: LoginView
     },
     {
-        path: '/admin/usuarios',
-        name: 'admin-usuarios',
-        component: UsuariosView,
-        // Aquí podrías agregar seguridad luego
+        path: '/admin',
+        component: AdminLayout,
+        meta: { requiresAuth: true },
+        children: [
+            {
+                path: 'usuarios',
+                name: 'admin-usuarios',
+                component: UsuariosView,
+                meta: { requiresAuth: true }
+            }
+            // Agrega más rutas admin aquí
+        ]
+    },
+    {
+        path: '/:pathMatch(.*)*',
+        name: 'not-found',
+        component: NotFoundView
     }
 ]
 
 const router = createRouter({
     history: createWebHistory(),
     routes
+})
+
+// Guard para proteger rutas que requieren autenticación
+router.beforeEach((to, from, next) => {
+    const isAuthenticated = !!localStorage.getItem('token')
+
+   
+    
+    if (to.meta.requiresAuth && !isAuthenticated) {
+        // Si la ruta requiere autenticación y no hay token, redirige al login
+        next({ name: 'login' })
+    } else if (to.name === 'login' && isAuthenticated) {
+        // Si ya está logueado e intenta ir al login, redirige al admin
+        next({ path: '/admin/usuarios' })
+    } else {
+        next()
+    }
 })
 
 export default router
