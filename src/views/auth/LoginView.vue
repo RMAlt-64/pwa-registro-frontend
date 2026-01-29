@@ -73,12 +73,14 @@
 import { ref } from 'vue';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
+import {useAuthStore} from '../../stores/auth';
 
 const router = useRouter();
 const email = ref('');
 const password = ref('');
 const mensaje = ref('');
 const isError = ref(false);
+const authStore = useAuthStore();
 
 const handleLogin = async () => {
   try {
@@ -86,13 +88,22 @@ const handleLogin = async () => {
       email: email.value,
       password: password.value
     });
-    
+    authStore.setToken(respuesta.data.token, respuesta.data.tokenType);
+    console.log('Token almacenado en el store:', authStore.token);
+
     // Si el login es exitoso, guardamos el token
     const token = respuesta.data.token;
     localStorage.setItem('token', token);
     isError.value = false;
     mensaje.value = "¡Login exitoso! Token guardado.";
-    router.push('/admin/usuarios');
+    if (authStore.esAdmin){
+        mensaje.value += " Bienvenido, Administrador.";
+        router.push('/admin/usuarios');
+    }
+    else {
+        mensaje.value += " Bienvenido, Usuario.";
+        // Redirigir a otra vista si es necesario
+    }
 
     
   } catch (error) {

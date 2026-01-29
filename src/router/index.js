@@ -1,6 +1,6 @@
 // src/router/index.js
 import { createRouter, createWebHistory } from 'vue-router'
-import LoginView from '../views/LoginView.vue'
+import LoginView from '../views/auth/LoginView.vue'
 import AdminLayout from '../views/admin/AdminLayout.vue'
 import UsuariosView from '../views/admin/UsuariosView.vue'
 import NotFoundView from '../views/NotFoundView.vue'
