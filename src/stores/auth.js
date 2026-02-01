@@ -10,6 +10,7 @@ export const useAuthStore = defineStore('auth', {
 
   // 2. LAS ACCIONES: Funciones para modificar el estado
   actions: {
+    // set full auth (usuario + token). Usar cuando el backend devuelve usuario
     setAuth(userData, token) {
       this.usuario = userData;
       this.token = token;
@@ -18,13 +19,25 @@ export const useAuthStore = defineStore('auth', {
       // Guardamos en el navegador para que no se borre al refrescar (F5)
       localStorage.setItem('token', token);
       localStorage.setItem('rol', userData.rol);
-    },
+      console.log('[auth] setAuth', { usuario: userData, rol: userData.rol });
 
+    },
+    // set sólo token (útil cuando el login devuelve sólo token)
+    setToken(token, rol ) {
+      this.token = token;
+      this.rol = rol;
+      localStorage.setItem('token', token);
+      if (rol){
+        localStorage.setItem('rol', rol);
+      }
+      console.log('[auth] setToken', { token, rol });
+    },
     logout() {
       this.usuario = null;
       this.token = null;
       this.rol = null;
       localStorage.clear();
+      console.log('[auth] logout - localStorage cleared');
     }
   },
 

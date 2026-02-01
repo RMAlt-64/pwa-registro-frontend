@@ -71,7 +71,7 @@
 
 <script setup>
 import { ref } from 'vue';
-import axios from 'axios';
+import api from '../../services/api';
 import { useRouter } from 'vue-router';
 import {useAuthStore} from '../../stores/auth';
 
@@ -80,36 +80,78 @@ const email = ref('');
 const password = ref('');
 const mensaje = ref('');
 const isError = ref(false);
+const isLoading = ref(false);
+let abortController = null;
 const authStore = useAuthStore();
 
 const handleLogin = async () => {
-  try {
-    const respuesta = await axios.post('http://localhost:3000/api/auth/login', {
-      email: email.value,
-      password: password.value
-    });
-    authStore.setToken(respuesta.data.token, respuesta.data.tokenType);
-    console.log('Token almacenado en el store:', authStore.token);
+  // Previene envíos múltiples
+  if (isLoading.value) return;
 
-    // Si el login es exitoso, guardamos el token
-    const token = respuesta.data.token;
-    localStorage.setItem('token', token);
+  const emailTrim = email.value?.trim();
+  const passwordVal = password.value;
+
+  // Log para facilitar seguimiento sin exponer password
+  console.log('[Login] intento con email:', emailTrim);
+
+  if (!emailTrim || !passwordVal) {
+    isError.value = true;
+    mensaje.value = 'Por favor completa email y password';
+    console.warn('[Login] validación fallida - campos vacíos');
+    return;
+  }
+
+  isLoading.value = true;
+  isError.value = false;
+  mensaje.value = '';
+
+  // Cancelar petición anterior si existe
+  if (abortController) {
+    console.log('[Login] abortando petición anterior');
+    abortController.abort();
+  }
+  abortController = new AbortController();
+
+  try {
+    const respuesta = await api.post('/api/auth/login', {
+      email: emailTrim,
+      password: passwordVal
+    }, { signal: abortController.signal });
+
+    const token = respuesta.data?.token;
+    const rol = respuesta.data?.rol || null;
+
+    if (!token) {
+      isError.value = true;
+      mensaje.value = 'Respuesta inválida: token no recibido';
+      console.error('[Login] token no recibido en respuesta', respuesta);
+      return;
+    }
+
+    // Centralizar guardado en el store (setToken guarda en localStorage)
+    authStore.setToken(token, rol);
+    console.log('[Login] éxito, token guardado en store', { token, rol });
+
     isError.value = false;
     mensaje.value = "¡Login exitoso! Token guardado.";
-    if (authStore.esAdmin){
-        mensaje.value += " Bienvenido, Administrador.";
-        router.push('/admin/usuarios');
-    }
-    else {
-        mensaje.value += " Bienvenido, Usuario.";
-        // Redirigir a otra vista si es necesario
+
+    if (authStore.esAdmin) {
+      mensaje.value += " Bienvenido, Administrador.";
+      router.push('/admin/usuarios');
+    } else {
+      mensaje.value += " Bienvenido, Usuario.";
     }
 
-    
   } catch (error) {
     isError.value = true;
-    mensaje.value = "Error: " + (error.response?.data?.error || "Servidor no alcanzable");
+    console.error('[Login] error:', error);
+    if (error.name === 'CanceledError' || error.name === 'AbortError') {
+      mensaje.value = 'Petición cancelada';
+    } else {
+      mensaje.value = "Error: " + (error.response?.data?.error || error.message || "Servidor no alcanzable");
+    }
+  } finally {
+    isLoading.value = false;
   }
 };
 </script>
-

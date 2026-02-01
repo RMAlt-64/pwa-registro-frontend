@@ -4,6 +4,7 @@ import LoginView from '../views/auth/LoginView.vue'
 import AdminLayout from '../views/admin/AdminLayout.vue'
 import UsuariosView from '../views/admin/UsuariosView.vue'
 import NotFoundView from '../views/NotFoundView.vue'
+import { useAuthStore } from '../stores/auth.js';
 
 const routes = [
     {
@@ -39,7 +40,8 @@ const router = createRouter({
 
 // Guard para proteger rutas que requieren autenticación
 router.beforeEach((to, from, next) => {
-    const isAuthenticated = !!localStorage.getItem('token')
+   const authStore = useAuthStore();
+   const isAuthenticated = authStore.estaLogueado;
 
    
     
