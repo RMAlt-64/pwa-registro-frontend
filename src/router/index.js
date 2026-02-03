@@ -6,6 +6,7 @@ import UsuariosView from '../views/admin/UsuariosView.vue'
 import NotFoundView from '../views/NotFoundView.vue'
 import { useAuthStore } from '../stores/auth.js';
 
+
 const routes = [
     {
         path: '/',
@@ -27,11 +28,19 @@ const routes = [
         ]
     },
     {
+        path: '/asistencia',
+        name: 'asistencia',
+        // 2. Lo que viene después se importa por función (Lazy Loading)
+        component: () => import('../views/empleado/AsistenciaView.vue'),
+        meta: { requiresAuth: true }
+    },
+    {
         path: '/:pathMatch(.*)*',
         name: 'not-found',
         component: NotFoundView
     }
 ]
+
 
 const router = createRouter({
     history: createWebHistory(),
@@ -42,18 +51,27 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
    const authStore = useAuthStore();
    const isAuthenticated = authStore.estaLogueado;
+   const userRol = authStore.rol;
+   console.log('[Router] Navegando a:', to.fullPath, 'Desde:', from.fullPath, 'Autenticado:', isAuthenticated, 'Rol:', userRol);
 
-   
-    
+    // 1. Si la ruta requiere auth y no está logueado -> Al Login
     if (to.meta.requiresAuth && !isAuthenticated) {
-        // Si la ruta requiere autenticación y no hay token, redirige al login
-        next({ name: 'login' })
-    } else if (to.name === 'login' && isAuthenticated) {
-        // Si ya está logueado e intenta ir al login, redirige al admin
-        next({ path: '/admin/usuarios' })
-    } else {
-        next()
+        return next({ name: 'login' });
     }
-})
+
+    // 2. Si ya está logueado e intenta entrar al Login -> Redirigir según su ROL
+    if (to.name === 'login' && isAuthenticated) {
+        if (userRol === 'administrador') {
+        return next({ path: '/admin/usuarios' });
+        } else {
+        return next({ path: '/asistencia' });
+        }
+    }
+
+    // 3. De lo contrario, dejar pasar
+    next();
+});
+
+
 
 export default router
