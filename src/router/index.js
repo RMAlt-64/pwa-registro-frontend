@@ -41,7 +41,6 @@ const routes = [
     }
 ]
 
-
 const router = createRouter({
     history: createWebHistory(),
     routes
@@ -62,14 +61,14 @@ router.beforeEach((to, from, next) => {
     // 2. Si ya está logueado e intenta entrar al Login -> Redirigir según su ROL
     if (to.name === 'login' && isAuthenticated) {
         if (userRol === 'administrador') {
-        return next({ path: '/admin/usuarios' });
+            return next({ path: '/admin/usuarios' });
         } else {
-        return next({ path: '/asistencia' });
+            return next({ path: '/asistencia' });
         }
     }
 
     // 3. De lo contrario, dejar pasar
-    next();
+    return next();
 });
 
 

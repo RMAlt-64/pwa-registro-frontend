@@ -44,6 +44,6 @@ export const useAuthStore = defineStore('auth', {
   // 3. GETTERS: Para consultar datos de forma rápida
   getters: {
     estaLogueado: (state) => !!state.token,
-    esAdmin: (state) => state.rol === 'admin',
+    esAdmin: (state) => state.rol === 'administrador'
   }
 });
