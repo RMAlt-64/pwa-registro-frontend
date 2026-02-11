@@ -126,19 +126,18 @@ const handleLogin = async () => {
     }, { signal: abortController.signal });
 
     const token = respuesta.data?.token;
-    const rol = respuesta.data?.rol || null;
-   
+    const rol = respuesta.data?.rol ?? null;
+    const nombre = respuesta.data?.nombre ?? null;
+    const apellido = respuesta.data?.apellido ?? null;
 
     if (!token) {
       isError.value = true;
-      
       console.error('[Login] token no recibido en respuesta', respuesta);
       return;
     }
 
-    // Centralizar guardado en el store (setToken guarda en localStorage)
-    authStore.setToken(token, rol);
-    console.log('[Login] éxito, token guardado en store', { token, rol });
+    authStore.setToken(token, rol, nombre, apellido);
+    console.log('[Login] éxito, token guardado en store', { token, rol, nombre, apellido });
 
     isError.value = false;
 
