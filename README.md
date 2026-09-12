@@ -1,10 +1,10 @@
-# PWA Registro UNER — PWA Instalable de Control de Asistencia Geolocalizado
+# PWA Registro — PWA Instalable de Control de Asistencia Geolocalizado
 
 ## ¿Qué problema resuelve?
 
 Las empresas registran asistencia en planillas o sistemas sin validación de ubicación. Eso genera fichajes fuera de puesto, sin trazabilidad y sin control de quién estuvo dónde y cuándo. Sin soporte offline, si el empleado se queda sin señal no puede fichar.
 
-**PWA Registro UNER** resuelve eso: una PWA instalable que registra entradas/salidas con geolocalización, valida si el empleado está dentro del radio del puesto (fórmula Haversine) y funciona offline con sincronización posterior. Roles diferenciados: administrador gestiona puestos y usuarios, empleado ficha asistencia.
+**PWA Registro** resuelve eso: una PWA instalable que registra entradas/salidas con geolocalización, valida si el empleado está dentro del radio del puesto (fórmula Haversine) y funciona offline con sincronización posterior. Roles diferenciados: administrador gestiona puestos y usuarios, empleado ficha asistencia.
 
 ## Solución
 
@@ -66,4 +66,4 @@ PWA instalable verificada (`npm run build` genera `manifest.webmanifest` + `sw.j
 
 ## Autor
 
-Ruben Manuel Almiron — UNER — github.com/RMAlt-64
+Ruben Manuel Almiron — github.com/RMAlt-64
